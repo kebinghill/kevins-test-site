@@ -1,13 +1,20 @@
 const express = require('express');
 const app = express();
-const { router } = require('./routes');
+const { static } = express;
+const path = require('path');
+
 const { syncAndSeed } = require('./db');
+app.use(express.json());
 
-app.use(router);
+app.use('/dist', static(path.join(__dirname, 'dist')));
 
-const init = () => {
+app.get('/', (req, res, next) => {
+  res.sendFile(path.join(__dirname, './index.html'));
+});
+
+const init = async () => {
   try {
-    syncAndSeed();
+    await syncAndSeed();
     const port = process.env.PORT || 3000;
     app.listen(port, console.log(`listening on port: ${port}`));
   } catch (err) {
@@ -16,3 +23,5 @@ const init = () => {
 };
 
 init();
+
+module.exports = app;
